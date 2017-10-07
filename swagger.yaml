@@ -1,0 +1,56 @@
+swagger: '2.0'
+info: null
+version: 1.0.0
+title: 'Repairs API'
+description: 'REST API for repairs store'
+host: localhost
+basePath: /api
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths: null
+/repairs:
+  get:
+    description: 'returns list of repairs'
+    produces:
+      - application/json
+    responses:
+      '200': { description: 'A list of repairs', schema: { type: array, items: { $ref: '#/definitions/Repair' } } }
+definitions:
+  Repair:
+    type: object
+    required:
+      - id
+      - startDate
+      - endDate
+      - isCompleted
+      - completionProposed
+      - assignedUser
+    properties:
+      id:
+        type: string
+      startDate:
+        type: int
+        format: int64
+      endDate:
+        type: int
+        format: int64
+      isCompleted:
+        type: boolean
+      completionProposed:
+        type: boolean
+      assignedUser:
+        $ref: '#/definitions/UserSimple'
+  UserSimple:
+    type: object
+    required:
+      - username
+      - role
+    properties:
+      username:
+        type: string
+      role:
+        type: string
