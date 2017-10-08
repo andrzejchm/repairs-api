@@ -1,49 +1,81 @@
 swagger: '2.0'
-info: null
-version: 1.0.0
-title: 'Repairs API'
-description: 'REST API for repairs store'
-host: localhost
-basePath: /api
+info:
+  version: 1.0.0
+  title: 'Repairs API'
+  description: 'REST API for repairs store'
+host: api.repairs.com
+basePath: /v1
 schemes:
   - http
-consumes:
-  - application/json
-produces:
-  - application/json
-paths: null
-/repairs:
-  get:
-    description: 'returns list of repairs'
-    produces:
-      - application/json
-    responses:
-      '200': { description: 'A list of repairs', schema: { type: array, items: { $ref: '#/definitions/Repair' } } }
+paths:
+  /repairs:
+    get:
+      description: returns list of repairs
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: repairs list
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Repair'
+  
+  /repairs/create:
+    put:
+      description: 'creates new repair'
+      responses:
+        '201':
+          description: 'successfully created repair'
+          examples:
+            application/json: |-
+              {
+                'code': 201,
+                'error': null,
+                'payload': {
+                  'repairId': 'a93871ca9', 
+                }
+              }
+        '400':
+          description: 'wrong parameters'
+          examples:
+            application/json: |-
+              {
+                'code': 201,
+                'error': 'parameter: "startDate" is required and must be an int',
+                'payload': null,
 definitions:
   Repair:
+    allOf:
+      - $ref: "#/definitions/NewRepair"
+      - required:
+        - id
+        properties:
+          id:
+            type: string
+    
+  NewRepair:
     type: object
     required:
-      - id
       - startDate
       - endDate
       - isCompleted
       - completionProposed
       - assignedUser
     properties:
-      id:
-        type: string
       startDate:
-        type: int
-        format: int64
+        $ref: '#/definitions/Date'
       endDate:
-        type: int
-        format: int64
+        $ref: '#/definitions/Date'
       isCompleted:
         type: boolean
+        description: 'whether the given repair is assumed completed or not.'
       completionProposed:
         type: boolean
+        description: 'used to signal manager or admin that the given repair was proposed for completion status by assigned user'
       assignedUser:
         $ref: '#/definitions/UserSimple'
+        description: 'currently assigned user'
   UserSimple:
     type: object
     required:
@@ -54,3 +86,16 @@ definitions:
         type: string
       role:
         type: string
+  Date:
+      type: integer
+      format: int64
+      description: 'epoch unix timestamp, for example: 1507415004 denotes 7 Oct 2017 22:23:23'
+  Response:
+    type: object
+    properties:
+      payload:
+        type: object
+      error:
+        type: string
+      code:
+        type: integer
