@@ -7,9 +7,44 @@ host: api.repairs.com
 basePath: /v1
 schemes:
   - http
+tags:
+  - name: auth
+    description: all endpoints related to authentication
+  - name: repairs
+    description: all endpoints related to repairs manipulation
+  - name: users
+    description: all endpoints related to users manipulation
 paths:
+  /auth/login:
+    post:
+      summary: logs the user with username and password
+      tags:
+        - auth
+      responses:
+        200:
+          schema:
+            $ref: '#/definitions/Response'
+          examples:
+            application/json: |-
+              {
+                'code': 200,
+                'error':null,
+                'payload': null
+              }
+          headers:
+            Auth-Token:
+              type: string
+              description: "the auth token which should be added to each request as a header: 'Authorization: Bearer {AUTH_TOKEN}'"
+  /auth/register:
+    post:
+      summary: creates new user and logs in
+      tags:
+        - auth
   /repairs:
     get:
+      summary: list of repairs
+      tags:
+        - repairs
       description: returns list of repairs
       produces:
         - application/json
@@ -20,9 +55,101 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Repair'
-  
+  '/repairs/{id}':
+    get:
+      summary: repair details
+      tags:
+        - repairs
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: id of the repair to get the details for
+      responses:
+        '200':
+          description: a repair details
+          schema:
+            $ref: '#/definitions/Repair'
+        '404':
+          description: when repair with given id is not found
+          schema:
+            $ref: '#/definitions/Response'
+          examples:
+            application/json: |-
+              {
+                'code': 404,
+                'error': "there is no such repair with given id",
+                'payload': null
+              }
+    post:
+      summary: edit repair
+      tags:
+        - repairs
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: id of the repair to edit
+        - in: body
+          name: Repair
+          required: true
+          schema:
+            $ref: '#/definitions/Repair'
+      responses:
+        '200':
+          description: repair updated successfully
+          schema:
+            $ref: '#/definitions/Response'
+          examples:
+            application/json: |-
+              {
+                'code': 200,
+                'error':null,
+                'payload': null
+              }
+        '404':
+          description: when repair with given id is not found
+          schema:
+            $ref: '#/definitions/Response'
+          examples:
+            application/json: |-
+              {
+                'code': 404,
+                'error': "there is no such repair with given id",
+                'payload': null
+              }
+        '400':
+          description: When body contains invalid values
+          schema:
+            $ref: '#/definitions/Response'
+          examples:
+            application/json: |-
+              {
+                'code': 400,
+                'error': "id of the repair in body does not match repair id in path",
+                'payload': null
+              }
+    delete:
+      summary: delete repair
+      tags:
+        - repairs
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: id of the repair to propose completion
   /repairs/create:
     put:
+      summary: create new repair
+      tags:
+        - repairs
       description: 'creates new repair'
       responses:
         '201':
@@ -33,7 +160,7 @@ paths:
                 'code': 201,
                 'error': null,
                 'payload': {
-                  'repairId': 'a93871ca9', 
+                  'id': 'a93871ca9',
                 }
               }
         '400':
@@ -43,7 +170,72 @@ paths:
               {
                 'code': 201,
                 'error': 'parameter: "startDate" is required and must be an int',
-                'payload': null,
+                'payload': null
+              }
+  /repairs/{id}/proposeComplete:
+    post:
+      summary: proposes completion of the repair to be accepted by manager
+      tags:
+        - repairs
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: id of the repair to propose completion
+  /repairs/{id}/approveCompletion:
+    post:
+      summary: accepts the completion proposition made by user with /proposeComplete
+      tags:
+        - repairs
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: id of the repair to propose completion
+  /repairs/{id}/comments:
+    get:
+      summary: list of comments for given repair
+      tags:
+        - repairs
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: id of the repair to propose completion
+  /users:
+    get:
+      summary: list of users
+      tags:
+        - users
+  /users/search:
+    get:
+      summary: list usernames matching the search query
+      tags:
+        - users
+  /users/{username}:
+    get:
+      summary: user details
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: username
+          type: string
+          required: true
+          description: username of the user for which detals we want to fetch
+    delete:
+      summary: deletes user with given username
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: username
+          type: string
+          required: true
+          description: username of the user for which detals we want to fetch
 definitions:
   Repair:
     allOf:
