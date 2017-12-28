@@ -45,6 +45,17 @@ paths:
       summary: list of repairs
       tags:
         - repairs
+      parameters:
+        - in: query
+          name: from
+          type: integer
+          required: false
+          description: start of range when the repair is scheduled in seconds since January 1st 1970. Inclusive
+        - in: query
+          name: to
+          type: integer
+          required: false
+          description: end of range when the repair is scheduled in seconds since January 1st 1970. Exclusive
       description: returns list of repairs
       produces:
         - application/json
@@ -55,6 +66,32 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Repair'
+    put:
+      summary: create new repair
+      tags:
+        - repairs
+      description: 'creates new repair'
+      responses:
+        '201':
+          description: 'successfully created repair'
+          examples:
+            application/json: |-
+              {
+                'code': 201,
+                'error': null,
+                'payload': {
+                  'id': 'a93871ca9',
+                }
+              }
+        '400':
+          description: 'wrong parameters'
+          examples:
+            application/json: |-
+              {
+                'code': 201,
+                'error': 'parameter: "startDate" is required and must be an int',
+                'payload': null
+              }
   '/repairs/{id}':
     get:
       summary: repair details
@@ -145,33 +182,6 @@ paths:
           type: string
           required: true
           description: id of the repair to propose completion
-  /repairs/create:
-    put:
-      summary: create new repair
-      tags:
-        - repairs
-      description: 'creates new repair'
-      responses:
-        '201':
-          description: 'successfully created repair'
-          examples:
-            application/json: |-
-              {
-                'code': 201,
-                'error': null,
-                'payload': {
-                  'id': 'a93871ca9',
-                }
-              }
-        '400':
-          description: 'wrong parameters'
-          examples:
-            application/json: |-
-              {
-                'code': 201,
-                'error': 'parameter: "startDate" is required and must be an int',
-                'payload': null
-              }
   /repairs/{id}/proposeComplete:
     post:
       summary: proposes completion of the repair to be accepted by manager
@@ -183,7 +193,7 @@ paths:
           type: string
           required: true
           description: id of the repair to propose completion
-  /repairs/{id}/approveCompletion:
+  /repairs/{id}/markCompleted:
     post:
       summary: accepts the completion proposition made by user with /proposeComplete
       tags:
@@ -205,6 +215,22 @@ paths:
           type: string
           required: true
           description: id of the repair to propose completion
+      responses:
+        200:
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Comment'
+    put:
+      summary: adds new comment to given repair
+      tags:
+        - repairs
+      parameters:
+        - in: body
+          name: Comment
+          required: true
+          schema:
+            $ref: '#/definitions/Comment'
   /users:
     get:
       summary: list of users
@@ -215,6 +241,12 @@ paths:
       summary: list usernames matching the search query
       tags:
         - users
+      parameters:
+        - in: query
+          name: q
+          required: true
+          ttype: string
+          description: A desired query to search users with
   /users/{username}:
     get:
       summary: user details
@@ -245,7 +277,7 @@ definitions:
         properties:
           id:
             type: string
-    
+
   NewRepair:
     type: object
     required:
@@ -291,3 +323,12 @@ definitions:
         type: string
       code:
         type: integer
+  Comment:
+    type: object
+    properties:
+      contents:
+        type: string
+      date:
+        type: integer
+      username:
+        type: string

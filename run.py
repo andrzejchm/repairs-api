@@ -1,11 +1,8 @@
-import os
+from app.App import App
+from config import IP_PORT, DB_URL
 
-from flask_api import FlaskAPI
-from app import create_app
+app = App(DB_URL)
 
-app = create_app()
-
-# Launch server
-if __name__ == "__main__":
-  port = int(os.environ.get("PORT", 5000))
-  app.run(host='0.0.0.0', port=port)
+if __name__ == '__main__':
+    flaskApp = app.init()
+    flaskApp.run(port=IP_PORT)
