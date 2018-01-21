@@ -34,7 +34,7 @@ paths:
           headers:
             Auth-Token:
               type: string
-              description: "the auth token which should be added to each request as a header: 'Authorization: Bearer {AUTH_TOKEN}'"
+              description: "the auth token which should be added to each request as a header: 'Authorization: {AUTH_TOKEN}'"
   /auth/register:
     post:
       summary: creates new user and logs in
