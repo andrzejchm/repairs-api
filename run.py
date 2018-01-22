@@ -5,4 +5,4 @@ app = App(DB_URL)
 
 if __name__ == '__main__':
     flaskApp = app.init()
-    flaskApp.run(port=IP_PORT)
+    flaskApp.run(host='0.0.0.0', port=IP_PORT)

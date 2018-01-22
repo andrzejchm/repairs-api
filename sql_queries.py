@@ -54,7 +54,7 @@ def get_users_query():
 
 
 def seach_users_query(query):
-    return f"SELECT * FROM `{TABLE_USERS}` WHERE `{COLUMN_USERNAME} LIKE '%{query}%'"
+    return f"SELECT * FROM `{TABLE_USERS}` WHERE `{COLUMN_USERNAME}` LIKE '%{query}%'"
 
 
 def delete_user_query(username):
